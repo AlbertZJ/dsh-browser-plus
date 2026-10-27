@@ -7,7 +7,10 @@ import { pathToFileURL } from 'node:url'
 import path from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
 import { SESSION_FORMAT_VERSION, SessionId } from '@deepseek-ai/dsh-session'
-import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import * as JsonlPersistenceModule from '@deepseek-ai/dsh-session-persistence-jsonl'
+// 0.2.1 起该包移除 default 导出，改为 named `apply`（cordis plugin 形状）；两种都兼容。
+const JsonlSessionPersistence = (JsonlPersistenceModule as { default?: unknown; apply?: unknown }).default
+  ?? (JsonlPersistenceModule as { apply?: unknown }).apply
 import Storage from '@deepseek-ai/dsh-storage'
 import * as StorageJson from '@deepseek-ai/dsh-storage-json'
 import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
@@ -47,7 +50,8 @@ async function makeSession(root: string, workspace: string, sessionId: string): 
 async function contendForSession(root: string): Promise<unknown> {
   const child = spawn(process.execPath, ['--input-type=module', '-e', `
     import { Context } from ${JSON.stringify(resolveModule('@deepseek-ai/cordis'))}
-    import JsonlSessionPersistence from ${JSON.stringify(resolveModule('@deepseek-ai/dsh-session-persistence-jsonl'))}
+    import * as JsonlMod from ${JSON.stringify(resolveModule('@deepseek-ai/dsh-session-persistence-jsonl'))}
+    const JsonlSessionPersistence = JsonlMod.default ?? JsonlMod.apply
     import { SESSION_FORMAT_VERSION, SessionId } from ${JSON.stringify(resolveModule('@deepseek-ai/dsh-session'))}
     const ctx = new Context()
     try {
@@ -140,7 +144,7 @@ describe('purgeSessionFiles', () => {
       .rejects.toMatchObject({ code: 'invalid-id' })
   })
 
-  it('never follows a session-directory symlink when removing child files', async () => {
+  it.skipIf(process.platform === 'win32')('never follows a session-directory symlink when removing child files', async () => {
     const root = await makeSessionsRoot()
     const external = await makeSessionsRoot()
     await writeFile(path.join(external, 'session.jsonl.zstd'), 'keep')
@@ -260,7 +264,8 @@ describe('purgeSessionFiles', () => {
     const root = await makeSessionsRoot()
     const holder = spawn(process.execPath, ['--input-type=module', '-e', `
       import { Context } from ${JSON.stringify(resolveModule('@deepseek-ai/cordis'))}
-      import JsonlSessionPersistence from ${JSON.stringify(resolveModule('@deepseek-ai/dsh-session-persistence-jsonl'))}
+      import * as JsonlMod from ${JSON.stringify(resolveModule('@deepseek-ai/dsh-session-persistence-jsonl'))}
+    const JsonlSessionPersistence = JsonlMod.default ?? JsonlMod.apply
       import { SESSION_FORMAT_VERSION, SessionId } from ${JSON.stringify(resolveModule('@deepseek-ai/dsh-session'))}
       const ctx = new Context()
       await ctx.plugin(JsonlSessionPersistence, { root: process.argv[1], compression: 'none' })

@@ -34,7 +34,8 @@ describe('token', () => {
     const token = generateToken()
     await writeTokenFile(token, file)
     expect((await readFile(file, 'utf8')).trim()).toBe(token)
-    expect((await stat(file)).mode & 0o777).toBe(0o600)
+    // Windows 不套用 POSIX mode 位（Node 报告 0o666），仅校验内容读写与组/其他位不放宽的意图
+    if (process.platform !== 'win32') expect((await stat(file)).mode & 0o777).toBe(0o600)
     const resolved = await resolveToken(undefined, file)
     expect(resolved.token).toBe(token)
     expect(resolved.generated).toBe(false)

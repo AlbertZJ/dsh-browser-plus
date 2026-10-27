@@ -98,7 +98,7 @@ export function accessibleName(el: Element): string {
   if (labelledBy !== null) {
     const ref = document.getElementById(labelledBy.split(/\s+/)[0] ?? '')
     const refText = ref?.textContent
-    if (refText !== undefined && refText.trim() !== '') return truncate(clean(refText), MAX_ITEM_NAME_CHARS).text
+    if (refText != null && refText.trim() !== '') return truncate(clean(refText), MAX_ITEM_NAME_CHARS).text
   }
 
   const labelable = el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement
@@ -106,16 +106,16 @@ export function accessibleName(el: Element): string {
     if (el.id !== '') {
       const label = el.ownerDocument.querySelector<HTMLLabelElement>(`label[for="${cssEscape(el.id)}"]`)
       const labelText = label?.textContent
-      if (labelText !== undefined && labelText.trim() !== '') return truncate(clean(labelText), MAX_ITEM_NAME_CHARS).text
+      if (labelText != null && labelText.trim() !== '') return truncate(clean(labelText), MAX_ITEM_NAME_CHARS).text
     }
     const wrappingLabelText = el.closest('label')?.textContent
-    if (wrappingLabelText !== undefined && wrappingLabelText.trim() !== '') {
+    if (wrappingLabelText != null && wrappingLabelText.trim() !== '') {
       return truncate(clean(wrappingLabelText), MAX_ITEM_NAME_CHARS).text
     }
   }
 
   const ownText = el instanceof HTMLInputElement ? '' : el.textContent
-  if (ownText !== undefined && ownText.trim() !== '') return truncate(clean(ownText), MAX_ITEM_NAME_CHARS).text
+  if (ownText != null && ownText.trim() !== '') return truncate(clean(ownText), MAX_ITEM_NAME_CHARS).text
 
   if (el instanceof HTMLInputElement) {
     // Button-like inputs carry their label in `value`; other inputs never use

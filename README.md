@@ -1,3 +1,13 @@
+> [!NOTE]
+> **dsh-browser-plus** — Fork of [omdsh-dev/dsh-browser](https://github.com/omdsh-dev/dsh-browser) (by Yuxiang Lin), adapted for **dsh 0.2.1** (tested on `0.2.1-rc.2`; upstream pins `0.2.0-rc.2` and does not support 0.2.1).
+>
+> Changes in this fork:
+> - All `@deepseek-ai/*` deps: exact `0.2.0-rc.2` pins → `0.2.1-rc.2` where published (two packages have no 0.2.1 line and stay on `0.2.0-rc.2`); bridge `peerDependencies` widened to `0.2.0-rc.2 || >=0.2.1-rc.1 <0.3.0-0`
+> - `dsh-session-persistence-jsonl` 0.2.1 removed its default export → tests now accept `{ default, apply }` both
+> - `extract.ts`: `textContent` null-narrowing fixes required by strict TS
+> - Two tests that assume POSIX (symlinks, `0o600` mode) skipped/relaxed on Windows
+> - Verified: typecheck ✅, 543 tests ✅ (1 Windows-inapplicable skipped), build ✅ on dsh `0.2.1-rc.2`
+
 # dsh Browser Control [![dshfind](https://dshfind.com/api/badge/Lum1104/dsh-browser?lang=zh)](https://dshfind.com/zh/plugins/Lum1104/dsh-browser?ref=badge)
 
 **English** | [中文](README.zh.md)
